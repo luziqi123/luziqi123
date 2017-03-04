@@ -1,0 +1,700 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="[TOC]
+ViewRoot 和 DecorView(……未完待续…..)在介绍他们之前 , 应该知道这些 :
+
+Activity通过PhoneWindow的setContentView方法来设置布局(PhoneWindow是Android中的最基本的窗口系统,每个Activity 均会创建一个PhoneWindow对象)，而设置布局之前，会先判断是否存在mDecor，如果是空 , PhoneWi">
+<meta property="og:type" content="article">
+<meta property="og:title" content="View的工作原理">
+<meta property="og:url" content="http://yoursite.com/2017/02/25/Android开发艺术探索读书笔记/3. View的工作原理/index.html">
+<meta property="og:site_name" content="Mr.LongFace">
+<meta property="og:description" content="[TOC]
+ViewRoot 和 DecorView(……未完待续…..)在介绍他们之前 , 应该知道这些 :
+
+Activity通过PhoneWindow的setContentView方法来设置布局(PhoneWindow是Android中的最基本的窗口系统,每个Activity 均会创建一个PhoneWindow对象)，而设置布局之前，会先判断是否存在mDecor，如果是空 , PhoneWi">
+<meta property="og:updated_time" content="2017-02-26T15:10:32.803Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="View的工作原理">
+<meta name="twitter:description" content="[TOC]
+ViewRoot 和 DecorView(……未完待续…..)在介绍他们之前 , 应该知道这些 :
+
+Activity通过PhoneWindow的setContentView方法来设置布局(PhoneWindow是Android中的最基本的窗口系统,每个Activity 均会创建一个PhoneWindow对象)，而设置布局之前，会先判断是否存在mDecor，如果是空 , PhoneWi">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/02/25/Android开发艺术探索读书笔记/3. View的工作原理/"/>
+
+
+
+
+
+  <title> View的工作原理 | Mr.LongFace </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Mr.LongFace</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Startseite
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archiv
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/02/25/Android开发艺术探索读书笔记/3. View的工作原理/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mr.LongFace">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Mr.LongFace">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                View的工作原理
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Veröffentlicht am</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-02-25T00:00:00+08:00">
+                2017-02-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>[TOC]</p>
+<h1 id="ViewRoot-和-DecorView-……未完待续…"><a href="#ViewRoot-和-DecorView-……未完待续…" class="headerlink" title="ViewRoot 和 DecorView(……未完待续…..)"></a>ViewRoot 和 DecorView(……未完待续…..)</h1><p>在介绍他们之前 , 应该知道这些 :</p>
+<blockquote>
+<p>Activity通过PhoneWindow的setContentView方法来设置布局(<em>PhoneWindow是Android中的最基本的窗口系统,每个Activity 均会创建一个PhoneWindow对象</em>)，而设置布局之前，会先判断是否存在mDecor，如果是空 , PhoneWindow 则会创建一个DecorView . DecorView是整个ViewTree的最顶层View，它是一个FrameLayout布局，代表了整个应用的界面。</p>
+</blockquote>
+<h2 id="ViewRoot"><a href="#ViewRoot" class="headerlink" title="ViewRoot"></a>ViewRoot</h2><p>ViewRoot对应于ViewRootImpl类 , 他是链接WindoewManager和DeccorView的纽带 , View的三大流程均是通过ViewRoot来完成的 . ActivityThread中Activity对象被创建完毕后 , 会将DecorView添加到Window中 , 同时创建ViewRootImple对象 , 并将其与DecorView建立关联. View的绘制流程是从ViewRoot的performTraversals开始的 . 他经过measure , layout , draw 三个过程 . 分别为 测量View的宽高 , layout确定View的位置 , draw将View绘制出来 . 过程如下例 :</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">performTraversals</th>
+<th style="text-align:center">View</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">performMeasure -&gt; measure -&gt; onMeasure —-&gt;</td>
+<td style="text-align:center">measure</td>
+</tr>
+</tbody>
+</table>
+<p>他分别完成顶级View的measure , layout , draw 三大流程 . 在onMeasure方法中 , 又会调用所有子元素的measure方法  , 子元素重复父容器的measure过程 . 这可能就是在相对布局中  , 有多少子元素就会调用多少次onMeasure方法的原因 . </p>
+<p><strong>getMeasuredWidth / getWidth :</strong> 前者是最后一次对View内容测量后的宽度 , 后者是View在设定好布局后整个View的宽度 . 也就是说  一个是实际宽度 , 一个是全部的宽度 . 正常情况下两个值是一样的 , 返回的都是px的宽度 .</p>
+<p>通过 findViewById(R.androdi.id.content); 就可以得到DecorView中的内容布局 , 也就是我们setContentView时候设置的布局了 . </p>
+<h2 id="DecorView"><a href="#DecorView" class="headerlink" title="DecorView"></a>DecorView</h2><p>…..</p>
+<h1 id="理解MeasureSpec"><a href="#理解MeasureSpec" class="headerlink" title="理解MeasureSpec"></a>理解MeasureSpec</h1><p>MeasureSpec参与了View的测量过程 , 并起着决定性的作用 . 因为View的测量过程受父容器的影响 . 而父容器又影响View的MeasureSpec创建过程 . 在测量过程中 , 系统会将View的LayoutParams根据父容器所施加的规则转换成对应的MeasureSpec , 然后再根据这个measureSpec来测量出View的宽高 . </p>
+<p>MeasureSpec代表一个32位的int值 , 高2位代表SpecMode , 低30位代表SpecSize . 并提供了一个打包和解包的方法 . </p>
+<p><strong>SpecMode </strong> 是指测量模式 :</p>
+<p><strong>UNSPECIFIED : </strong>父容器不对View有任何限制,  要多大给多大, 这种情况一般用于系统内部 . 表示一直测量的状态.</p>
+<p><strong>EXACTLY : </strong>父容器已经检测出View所需要的精确大小 , 这个事实View的最终大小就是SpecSize所指定的值. 对应LayoutParams中的match_parent .</p>
+<p><strong>AT_MOST : </strong> 父容器指定了一个空大小 即 SpecSize . View的大小能大于这个值 , 具体是什么值要看不同View的具体实现 , 对应于LayoutParent中的wrap_content </p>
+<h1 id="自定义View"><a href="#自定义View" class="headerlink" title="自定义View"></a>自定义View</h1><p><strong>自定义View的分类:</strong></p>
+<ol>
+<li>继承View重写onDraw</li>
+<li>继承ViewGroup派生特殊Layout</li>
+<li>继承特定View 如TextView</li>
+<li>继承特定ViewGroup 如LinearLayout</li>
+</ol>
+<p><strong>注意事项 : </strong></p>
+<ol>
+<li>让View支持wrap_content</li>
+<li>让View支持padding</li>
+<li>尽量不要使用Handler , 因为有了post系列的方法</li>
+<li>线程和动画应及时停止 . View#onDetachedFromWindow方法在包含此View的Activity退出或被remove时被调用 , 对应的是onAttachedToWindow方法 . 除此之外 , 当View不可见时也应该停止线程 . </li>
+<li>注意手势冲突</li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/02/25/Android开发艺术探索读书笔记/1. Activity的启动模式/" rel="next" title="Activity的启动模式">
+                <i class="fa fa-chevron-left"></i> Activity的启动模式
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/02/25/Android开发艺术探索读书笔记/5. 理解RemoteViews/" rel="prev" title="理解RemoteView">
+                理解RemoteView <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Inhaltsverzeichnis
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Übersicht
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/head.jpg"
+               alt="Mr.LongFace" />
+          <p class="site-author-name" itemprop="name">Mr.LongFace</p>
+           
+              <p class="site-description motion-element" itemprop="description">一个瞎BB的人</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-name">Artikel</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ViewRoot-和-DecorView-……未完待续…"><span class="nav-number">1.</span> <span class="nav-text">ViewRoot 和 DecorView(……未完待续…..)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ViewRoot"><span class="nav-number">1.1.</span> <span class="nav-text">ViewRoot</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DecorView"><span class="nav-number">1.2.</span> <span class="nav-text">DecorView</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#理解MeasureSpec"><span class="nav-number">2.</span> <span class="nav-text">理解MeasureSpec</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#自定义View"><span class="nav-number">3.</span> <span class="nav-text">自定义View</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mr.LongFace</span>
+</div>
+
+
+<div class="powered-by">
+  Erstellt mit  <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+</body>
+</html>

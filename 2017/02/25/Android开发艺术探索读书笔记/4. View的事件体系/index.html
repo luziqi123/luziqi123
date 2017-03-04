@@ -1,0 +1,753 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="[TOC]
+View的位置参数View的位置由4个顶点决定 , 分别对应top , left , right , bottom 如下图:
+
+他们分别提供的get/set方法 , 注意他们都是相对于父控件的.
+从Android3.0开始 , View增加了几个额外的参数 :
+
+x , y  : View左上角坐标 , x = translationX  + left;  y = translatio">
+<meta property="og:type" content="article">
+<meta property="og:title" content="View的事件体系">
+<meta property="og:url" content="http://yoursite.com/2017/02/25/Android开发艺术探索读书笔记/4. View的事件体系/index.html">
+<meta property="og:site_name" content="Mr.LongFace">
+<meta property="og:description" content="[TOC]
+View的位置参数View的位置由4个顶点决定 , 分别对应top , left , right , bottom 如下图:
+
+他们分别提供的get/set方法 , 注意他们都是相对于父控件的.
+从Android3.0开始 , View增加了几个额外的参数 :
+
+x , y  : View左上角坐标 , x = translationX  + left;  y = translatio">
+<meta property="og:image" content="http://a1.qpic.cn/psb?/V10u8paC0GE6gy/TJEim1JM4vCCMnDZSGSn48z2hXGsEVabjf29xwVdfA4!/b/dCABAAAAAAAA&bo=jgGDAQAAAAADBy8!&rf=viewer_4">
+<meta property="og:image" content="http://img.blog.csdn.net/20170210104205022?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvdTAxMjk4NDA1NA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+<meta property="og:updated_time" content="2017-02-26T15:10:41.366Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="View的事件体系">
+<meta name="twitter:description" content="[TOC]
+View的位置参数View的位置由4个顶点决定 , 分别对应top , left , right , bottom 如下图:
+
+他们分别提供的get/set方法 , 注意他们都是相对于父控件的.
+从Android3.0开始 , View增加了几个额外的参数 :
+
+x , y  : View左上角坐标 , x = translationX  + left;  y = translatio">
+<meta name="twitter:image" content="http://a1.qpic.cn/psb?/V10u8paC0GE6gy/TJEim1JM4vCCMnDZSGSn48z2hXGsEVabjf29xwVdfA4!/b/dCABAAAAAAAA&bo=jgGDAQAAAAADBy8!&rf=viewer_4">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/02/25/Android开发艺术探索读书笔记/4. View的事件体系/"/>
+
+
+
+
+
+  <title> View的事件体系 | Mr.LongFace </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Mr.LongFace</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Startseite
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archiv
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/02/25/Android开发艺术探索读书笔记/4. View的事件体系/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mr.LongFace">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Mr.LongFace">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                View的事件体系
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Veröffentlicht am</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-02-25T00:00:00+08:00">
+                2017-02-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>[TOC]</p>
+<h2 id="View的位置参数"><a href="#View的位置参数" class="headerlink" title="View的位置参数"></a>View的位置参数</h2><p>View的位置由4个顶点决定 , 分别对应<strong>top , left , right , bottom</strong> 如下图:</p>
+<p><img src="http://a1.qpic.cn/psb?/V10u8paC0GE6gy/TJEim1JM4vCCMnDZSGSn48z2hXGsEVabjf29xwVdfA4!/b/dCABAAAAAAAA&amp;bo=jgGDAQAAAAADBy8!&amp;rf=viewer_4" alt=""></p>
+<p>他们分别提供的get/set方法 , 注意他们都是相对于父控件的.</p>
+<p>从Android3.0开始 , View增加了几个额外的参数 :</p>
+<ol>
+<li><strong>x , y  : </strong>View左上角坐标 , <em>x = translationX  + left;  y = translationY  + top;</em></li>
+<li><strong>translationX , translationY  :  </strong>View左上角相对于父控件容器的偏移量.默认是0</li>
+</ol>
+<p>他们也都提供了get/set方法. 也是相对父控件的.</p>
+<p><strong>注意 : </strong>View在平移的过程中 , top 和 left 并不会发生改变 , 他们保存的是左上角的原始位置 , 此时发生改变的是x , y , translationX , translationY这四个参数.</p>
+<h2 id="MotionEvent-和TouchSlop"><a href="#MotionEvent-和TouchSlop" class="headerlink" title="MotionEvent 和TouchSlop"></a>MotionEvent 和TouchSlop</h2><h3 id="MotionEvent-事件对象"><a href="#MotionEvent-事件对象" class="headerlink" title="MotionEvent 事件对象"></a>MotionEvent 事件对象</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onTouchEvent</span><span class="params">(MotionEvent event)</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">super</span>.onTouchEvent(event);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>他是手指在屏幕上做出不同动作所产生的的事件对象 . 经常会在onTouchEvent()方法中看到他 .</p>
+<p>常用:</p>
+<p>public static final int ACTION_DOWN = 0; 手指刚接触屏幕</p>
+<p>public static final int ACTION_MOVE = 2; 手指在屏幕上移动</p>
+<p>public static final int ACTION_UP = 1; 手指抬开</p>
+<p>非常用:</p>
+<p>public static final int ACTION_CANCEL = 3;触摸动作取消</p>
+<p>public static final int ACTION_OUTSIDE = 4;触摸动作超出边界</p>
+<p>public static final int ACTION_POINTER_DOWN = 5;多点触摸动作</p>
+<p>public static final int ACTION_POINTER_UP = 6;多点离开动作</p>
+<p>该对象为我们提供了一些参数 , 来获取时间发生的坐标:</p>
+<ol>
+<li>getX/getY : 这个坐标相对于View左上角</li>
+<li>getRawX/getRawY : 这个坐标相对于手机屏幕的左上角</li>
+</ol>
+<h3 id="TouchSlop-滑动最小距离"><a href="#TouchSlop-滑动最小距离" class="headerlink" title="TouchSlop 滑动最小距离"></a>TouchSlop 滑动最小距离</h3><p>TouchSlop是系统所能识别出的被认为是滑动的最小距离 , 也就是如果你的滑动距离小于这个值 ,那么久认为你没有在滑动 . 通过如下代码可以获取到这个值 :</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">ViewConfiguration viewConfiguration = ViewConfiguration.get(context);</div><div class="line">viewConfiguration.getScaledTouchSlop();</div></pre></td></tr></table></figure>
+<p>他和设备有关 , 不同的设备这个值的大小也不同 , 默认为8dp , 我们可以利用他来过滤掉那些并非滑动的滑动 .</p>
+<h2 id="VelocityTracker-GestureDetector"><a href="#VelocityTracker-GestureDetector" class="headerlink" title="VelocityTracker , GestureDetector"></a>VelocityTracker , GestureDetector</h2><h3 id="VelocityTracker-速度追踪"><a href="#VelocityTracker-速度追踪" class="headerlink" title="VelocityTracker 速度追踪"></a>VelocityTracker 速度追踪</h3><p>速度追踪 , 用于追踪手指滑动时的速度 , 使用 : </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">VelocityTracker tracker = VelocityTracker.obtain();</div><div class="line">tracker.addMovement(event);</div><div class="line">tracker.computeCurrentVelocity(<span class="number">1000</span>);</div><div class="line"></div><div class="line"><span class="keyword">float</span> xVelocity = tracker.getXVelocity();</div><div class="line"><span class="keyword">float</span> yVelocity = tracker.getYVelocity();</div></pre></td></tr></table></figure>
+<p>只需要将MotionEvent事件传递进去就可以了 , computeCurrentVelocity()方法是必须设置的 , 他决定了获取手指在多长时间内划过的像素点 , 所以这里的getXVelocity()方法获取的就是1秒内手指划过了多少像素点 . </p>
+<p>速度 = (终点 - 起点) / 时间段</p>
+<p><strong>注意 :</strong> 在使用完之后 , 需要调用clear方法来重置并回收内存 : </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">tracker.clear();</div><div class="line">tracker.recycle();</div></pre></td></tr></table></figure>
+<h3 id="GestureDetector-手势识别"><a href="#GestureDetector-手势识别" class="headerlink" title="GestureDetector 手势识别"></a>GestureDetector 手势识别</h3><p>手势识别 , 用于辅助检测用户的单击, 滑动 , 长按 , 双击等行为 . </p>
+<p>以下是他的使用方法 , OnGestureListener和OnDoubleTapListener可以选择性的实现</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> <span class="keyword">extends</span> <span class="title">View</span> <span class="keyword">implements</span> <span class="title">GestureDetector</span>.<span class="title">OnGestureListener</span> , <span class="title">GestureDetector</span>.<span class="title">OnDoubleTapListener</span></span>&#123;</div><div class="line"></div><div class="line">    GestureDetector mGestureDetector;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Test</span><span class="params">(Context context)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>(context);</div><div class="line">        <span class="comment">// 创建GestureDetector</span></div><div class="line">        mGestureDetector = <span class="keyword">new</span> GestureDetector(context , <span class="keyword">this</span>);</div><div class="line">        mGestureDetector.setIsLongpressEnabled(<span class="keyword">false</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onTouchEvent</span><span class="params">(MotionEvent event)</span> </span>&#123;</div><div class="line">        <span class="comment">// 将MotionEven传给他</span></div><div class="line">        <span class="keyword">boolean</span> b = mGestureDetector.onTouchEvent(event);</div><div class="line">        <span class="keyword">return</span> b;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">  	<span class="comment">// ---------------------OnGestureListener---------------------</span></div><div class="line">  </div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onDown</span><span class="params">(MotionEvent e)</span> </span>&#123;</div><div class="line">        <span class="comment">// TODO 手指轻按屏幕</span></div><div class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onShowPress</span><span class="params">(MotionEvent e)</span> </span>&#123;</div><div class="line">        <span class="comment">// TODO 手指轻按屏幕 , 尚未松开或拖动 , 和onDown的区别在于他多了后面的  "尚未松开或拖动"</span></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onSingleTapUp</span><span class="params">(MotionEvent e)</span> </span>&#123;</div><div class="line">        <span class="comment">// TODO 单击行为</span></div><div class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onScroll</span><span class="params">(MotionEvent e1, MotionEvent e2, <span class="keyword">float</span> distanceX, <span class="keyword">float</span> distanceY)</span> </span>&#123;</div><div class="line">        <span class="comment">// TODO 拖动行为</span></div><div class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onLongPress</span><span class="params">(MotionEvent e)</span> </span>&#123;</div><div class="line">        <span class="comment">// TODO 长按动作</span></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onFling</span><span class="params">(MotionEvent e1, MotionEvent e2, <span class="keyword">float</span> velocityX, <span class="keyword">float</span> velocityY)</span> </span>&#123;</div><div class="line">        <span class="comment">// TODO 快速滑动动作</span></div><div class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">// ---------------------OnDoubleTapListener---------------------</span></div><div class="line">    </div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onSingleTapConfirmed</span><span class="params">(MotionEvent e)</span> </span>&#123;</div><div class="line">        <span class="comment">// TODO 严格的单击行为 ,</span></div><div class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onDoubleTap</span><span class="params">(MotionEvent e)</span> </span>&#123;</div><div class="line">        <span class="comment">// TODO 双击动作</span></div><div class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onDoubleTapEvent</span><span class="params">(MotionEvent e)</span> </span>&#123;</div><div class="line">        <span class="comment">// TODO 发生了双击行为</span></div><div class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><strong>常用 : </strong> 并不是每个方法都会经常用到 , 常用的有:</p>
+<p>onSingleTapUp 单击</p>
+<p>onFling 滑动</p>
+<p>onScroll 拖动</p>
+<p>onLongPress 长按</p>
+<p>onDoubleTap 双击</p>
+<p><strong>建议 : </strong>如果只是监听滑动相关 , 则自己在onTouchEvent中实现 , 如果是监听双击的话就用GestureDetector . </p>
+<h2 id="View的滑动"><a href="#View的滑动" class="headerlink" title="View的滑动"></a>View的滑动</h2><h3 id="使用scrollTo-scrollBy"><a href="#使用scrollTo-scrollBy" class="headerlink" title="使用scrollTo / scrollBy"></a>使用scrollTo / scrollBy</h3><p>scrollBy实际上也是调用了scrollTo , 两者的区别在于 : </p>
+<ol>
+<li>scrollBy : 基于当前位置的相对滑动</li>
+<li>scrollTo : 基于所传递参数的绝对滑动</li>
+</ol>
+<p><strong>注意 : </strong>他们都只能改变View内容的位置 , 而不能改变View在布局中的位置 .</p>
+<p>下面是他们滚动方向的图像示例 : </p>
+<p><img src="http://img.blog.csdn.net/20170210104205022?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvdTAxMjk4NDA1NA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"></p>
+<h3 id="使用动画"><a href="#使用动画" class="headerlink" title="使用动画"></a>使用动画</h3><p>这种方式只需要提醒一点就是 , 如果用属性动画的话 , 可以使View的真实位置改变 , 而采用传统的动画则只是改变了View的translationX和translationY , 真实位置没有发生变化 , 如果是一个需要交互的View , 那么这种方式是不可行的 . </p>
+<p>如果没有交互 , 就使用传统动画 , 比较简单 </p>
+<p>如果有交互  , 就使用属性动画 , 通过在onAnimationUpdate()方法中改变View的布局来实现 . </p>
+<h3 id="Scroller"><a href="#Scroller" class="headerlink" title="Scroller"></a>Scroller</h3><p>弹性滑动对象 , 直接使用scrollTo/scrollBy进行滑动 , 其过程是瞬间的 , Scroller可以实现有过度效果的滑动.</p>
+<p>典型实现 : </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> <span class="keyword">extends</span> <span class="title">View</span></span>&#123;</div><div class="line"></div><div class="line">    Scroller mScroller;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Test</span><span class="params">(Context context)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>(context);</div><div class="line">        mScroller = <span class="keyword">new</span> Scroller(context);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">computeScroll</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span> (mScroller.computeScrollOffset()) &#123;</div><div class="line">            scrollTo(mScroller.getCurrX() , mScroller.getCurrY());</div><div class="line">            postInvalidate();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">     * 开始平滑滚动</div><div class="line">     * 此处为1秒钟滚动到指定的坐标</div><div class="line">     * <span class="doctag">@param</span> destX</div><div class="line">     * <span class="doctag">@param</span> destY</div><div class="line">     */</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">smoothScrollTo</span><span class="params">(<span class="keyword">int</span> destX , <span class="keyword">int</span> destY)</span></span>&#123;</div><div class="line">        <span class="keyword">int</span> scrollX = getScrollX();</div><div class="line">        <span class="keyword">int</span> delta = destX - scrollX;</div><div class="line">        mScroller.startScroll(scrollX , <span class="number">0</span> , delta , <span class="number">0</span> , <span class="number">1000</span>);</div><div class="line">        invalidate();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这里的重点是Scroller对象 , 上面代码的调用顺序为: 用户调用smoothScrollTo()方法 , 在这个方法中 , 传入了指定坐标 , 通过这个坐标算出了需要滑动的距离 , 然后将这个距离设置给了Scroller对象 , 调用了startScroll()方法 , 其实这个方法什么功能也没有 , 他仅仅是记录了一些所需要的信息 , 比如当前位置 , 滚动时间等等 . 然后紧跟着发了一个invalidate() , 让view重绘 ,  而在View的draw方法中就会去调用computeScroll了 , 这个方法原本是个空实现 , 而现在被重写, 在里面调用了 computeScrollOffset() , 这个方法厉害了 , 前面的startScroll方法将View的一些值记录了下来 , 而computeScrollOffset方法则会根据时间的流逝将对应的值改变 , 所以在执行过一computeScrollOffset方法之后 , Scroller对象中的值都更新了 , 所以在下面调用scrollTo方法时 , 传入的参数mScroller.getCurrX()则是当前时间这个View的X轴该在的地方 . 然后又发送postInvalidate()重复上面的过程  , computeScrollOffset()返回true时 , 表示滑动还未结束 , 否则反之 .</p>
+<h2 id="View事件冲突"><a href="#View事件冲突" class="headerlink" title="View事件冲突"></a>View事件冲突</h2><p>暂且不写….</p>
+<h2 id="View的事件分发机制"><a href="#View的事件分发机制" class="headerlink" title="View的事件分发机制"></a>View的事件分发机制</h2><p>还记得MotionEvent么 , 事件对象 , 当一个事件对象产生时 , 谁去处理它 ? 如何处理 ? </p>
+<h3 id="点击事件的传递规则"><a href="#点击事件的传递规则" class="headerlink" title="点击事件的传递规则"></a>点击事件的传递规则</h3><p>首先要知道非常重要的三个方法 : </p>
+<ol>
+<li><strong>dispatchTouchEvent :</strong> 用来进行事件的分发 ,  如果事件能够传递给当前View , 那么此方法一定会被调用 , 返回结果受当前View的onTouchEvent和下级View的dispatchTouchEvent影响 , 表示是否消耗当前事件 .</li>
+<li><strong>onInterceptTouchEvent :</strong> 在上述方法内部调用 , 用来判断是否拦截某个事件 , 如果当前View拦截了某个事件, 那么在同一个事件序列当中,  此方法不会再次被调用 , 返回结果表示是否拦截当前事件 .</li>
+<li><strong>onTouchEvent :</strong> 在dispatchTouchEvent中调用 , 返回值表示是否消耗当前事件 , 如果不消耗 , 则在同一个事件序列中无法再次接收到事件 .</li>
+</ol>
+<p>这是ViewGroup中的一段伪代码 : </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">dispatchTouchEvent</span><span class="params">(MotionEvent event)</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (onInterceptTouchEvent(event)) &#123;</div><div class="line">        consume = onTouchEvent(event);</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        consume = child.dispatchTouchEvent(event);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> consume;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这段代码简单说明了他们之间的关系 .  一个事件产生后 , 首先会调用最外层父控件的dispatchTouchEvent() , 如果onInterceptTouchEvent 返回true决定拦截 , 那么就不再向下传递 , 而是调用自己的onTouchEvent , 否则将调用子View的 dispatchTouchEvent 方法 . </p>
+<p>如果对某个View设置了 onTouchListener 那么先执行onTouchListener中的onTouch , 如果该方法返回true , 则onTouchEvent方法不再被调用 . </p>
+<p><strong>相关总结 :</strong> </p>
+<ol>
+<li>同一个事件序列是指从手指按下到离开 . </li>
+<li>正常情况下 , 一个事件序列只被一个View拦截且消耗 .</li>
+<li>某个View一旦决定拦截 , 那么这个事件序列都只能由他来处理 . 并且onInterceptTouchEvent在一个事件序列中只会被调用一次 . </li>
+<li>一个View在处理事件的时候 , 如果不消耗ACTION_DOWN事件 , 那么同一序列的事件都不会再交由它处理 . </li>
+<li>如果只处理了ACTION_DOWN事件 , 其他的都没有处理 , 那么这个点击事件将消失. </li>
+<li>ViewGroup默认不拦截任何事件 .</li>
+<li>View没有onInterceptOuchEvnet方法,  一旦有点击事件, 那么onTouchEvent将会被调用 . </li>
+<li>不可点击的View(如TextView) , 他的clickable和longClickable都是false  , 如果其中有一项为true  , 那么他的onTouchEvent返回true  , setOnclickListener会将clicable设置为true . </li>
+<li>enable 属性不影响onTouchEvent的默认返回值 . 哪怕他是一个disable状态 . </li>
+<li>通过requestDisallowInterceptTouchEvent方法可以在子View中干预父控件的事件分发过程 .ACTION_DOWN除外.</li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/02/24/设计模式/设计模式之 状态模式/" rel="next" title="设计模式之 状态模式">
+                <i class="fa fa-chevron-left"></i> 设计模式之 状态模式
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/02/25/Android开发艺术探索读书笔记/1. Activity的启动模式/" rel="prev" title="Activity的启动模式">
+                Activity的启动模式 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Inhaltsverzeichnis
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Übersicht
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/head.jpg"
+               alt="Mr.LongFace" />
+          <p class="site-author-name" itemprop="name">Mr.LongFace</p>
+           
+              <p class="site-description motion-element" itemprop="description">一个瞎BB的人</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-name">Artikel</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#View的位置参数"><span class="nav-number">1.</span> <span class="nav-text">View的位置参数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MotionEvent-和TouchSlop"><span class="nav-number">2.</span> <span class="nav-text">MotionEvent 和TouchSlop</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#MotionEvent-事件对象"><span class="nav-number">2.1.</span> <span class="nav-text">MotionEvent 事件对象</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TouchSlop-滑动最小距离"><span class="nav-number">2.2.</span> <span class="nav-text">TouchSlop 滑动最小距离</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#VelocityTracker-GestureDetector"><span class="nav-number">3.</span> <span class="nav-text">VelocityTracker , GestureDetector</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#VelocityTracker-速度追踪"><span class="nav-number">3.1.</span> <span class="nav-text">VelocityTracker 速度追踪</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GestureDetector-手势识别"><span class="nav-number">3.2.</span> <span class="nav-text">GestureDetector 手势识别</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#View的滑动"><span class="nav-number">4.</span> <span class="nav-text">View的滑动</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#使用scrollTo-scrollBy"><span class="nav-number">4.1.</span> <span class="nav-text">使用scrollTo / scrollBy</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用动画"><span class="nav-number">4.2.</span> <span class="nav-text">使用动画</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Scroller"><span class="nav-number">4.3.</span> <span class="nav-text">Scroller</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#View事件冲突"><span class="nav-number">5.</span> <span class="nav-text">View事件冲突</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#View的事件分发机制"><span class="nav-number">6.</span> <span class="nav-text">View的事件分发机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#点击事件的传递规则"><span class="nav-number">6.1.</span> <span class="nav-text">点击事件的传递规则</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mr.LongFace</span>
+</div>
+
+
+<div class="powered-by">
+  Erstellt mit  <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+</body>
+</html>
